@@ -61,21 +61,38 @@ open(REF, "<$ref") or die "Error: Cannot open reference file \'$ref\': $!\n";
 #print "Reference file '$ref'\n\n";
 
 
+# local variables to print each sentences result
+my($lnunknown, $lntest, $lnref, $ldistance_nounk, $lper_nounk);
+
 while(<TEST>) {
   &preprocess;
   $test_corpus=$_;
-  $nunknown+=s/[*](\w+)/$1/g;
+  $lnunknown=s/[*](\w+)/$1/g;
   @words_test = split /\s+/;
-  $ntest+=@words_test;
+  $lntest=@words_test;
 
   $_=<REF>;
   &preprocess;
   $ref_corpus=$_;
   @words_ref = split /\s+/;
-  $nref+=@words_ref;
+  $lnref=@words_ref;
 
-  $distance_nounk+=&edit_distance; 
-  $per_nounk+=&position_independent_correct_words;
+  $ldistance_nounk=&edit_distance; 
+  $lper_nounk=&position_independent_correct_words;
+
+  # skip empty line
+  if ($lnref == 0){
+    next;}
+  
+#  print "$ref_corpus\n";
+  print sprintf("%.3f",(($ldistance_nounk/$lnref)*100)+(1 - (($lper_nounk - max(0, $lntest - $lnref)) / $lnref))*100), "\n";
+
+  #update gloabal vars
+  $nunknown+=$lnunknown;
+  $ntest+=$lntest;
+  $nref+=$lnref;
+  $distance_nounk+=$ldistance_nounk;
+  $per_nounk+=$lper_nounk;
 }
 
 close(TEST);
