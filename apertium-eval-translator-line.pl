@@ -30,7 +30,7 @@ use locale;
 use POSIX qw(locale_h);
 setlocale(LC_ALL,"");
 
-my($test, $ref, $help, $version);
+my($test, $ref, $help, $version, $sent);
 
 my($nunknown, $ntest, $nref, $distance_nounk, $per_nounk);
 
@@ -43,6 +43,7 @@ GetOptions( 'test|t=s'           => \$test,
             'ref|r=s'            => \$ref,
             'help|h'             => \$help,
 	    'version|v'          => \$version,
+	    'sent|s'             => \$sent,
           ) || pod2usage(2);
 
 if ($version) {
@@ -84,8 +85,8 @@ while(<TEST>) {
   if ($lnref == 0){
     next;}
   
-#  print "$ref_corpus\n";
-  print sprintf( "%.3f  %.3f\n",(($ldistance_nounk/$lnref)*100), (1 - (($lper_nounk - max(0, $lntest - $lnref)) / $lnref) )*100 );
+  if ($sent){
+    print sprintf( "%.3f  %.3f\n",(($ldistance_nounk/$lnref)*100), (1 - (($lper_nounk - max(0, $lntest - $lnref)) / $lnref) )*100 );}
 
   #update gloabal vars
   $nunknown+=$lnunknown;
@@ -98,24 +99,24 @@ while(<TEST>) {
 close(TEST);
 close(REF);
 
-
+if (not $sent){
 print "Statistics about input files\n";
 print "-------------------------------------------------------\n";
 print "Number of words in reference: $nref\n";
 print "Number of words in test: $ntest\n";
 print "Number of unknown words (marked with a star) in test: $nunknown\n";
-print "Percentage of unknown words: ", sprintf("%.2f",($nunknown/$ntest)*100), " %\n";
+print "Percentage of unknown words: ", sprintf("%.3f",($nunknown/$ntest)*100), " %\n";
 print "\n";
 
 print "Results when removing unknown-word marks (stars)\n";
 print "-------------------------------------------------------\n";
 print "Edit distance: $distance_nounk\n";
-print "Word error rate (WER): ", sprintf("%.2f",($distance_nounk/$nref)*100), " %\n";
+print "Word error rate (WER): ", sprintf("%.3f",($distance_nounk/$nref)*100), " %\n";
 print "Number of position-independent correct words: ",  $per_nounk, "\n";
-print "Position-independent word error rate (PER): ", sprintf("%.2f",(1 - (($per_nounk - max(0, $ntest - $nref)) / $nref))*100), " %\n";
+print "Position-independent word error rate (PER): ", sprintf("%.3f",(1 - (($per_nounk - max(0, $ntest - $nref)) / $nref))*100), " %\n";
 
 print "\n";
-
+}
 
 sub position_independent_correct_words {
   my (%hash_test, %hash_ref);
@@ -200,6 +201,7 @@ Options:
   -ref|-r      Specify the file with the reference translation 
   -help|-h     Show this help message
   -version|-v  Show version information and exit
+  -sent|-s     Give results for each sentence only not the text
   
 Note: Reference translation MUST have no unknown-word marks, even if
       they are free rides.
