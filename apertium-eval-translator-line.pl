@@ -85,7 +85,7 @@ while(<TEST>) {
     next;}
   
 #  print "$ref_corpus\n";
-  print sprintf("%.3f",(($ldistance_nounk/$lnref)*100)+(1 - (($lper_nounk - max(0, $lntest - $lnref)) / $lnref))*100), "\n";
+  print sprintf( "%.3f  %.3f\n",(($ldistance_nounk/$lnref)*100), (1 - (($lper_nounk - max(0, $lntest - $lnref)) / $lnref) )*100 );
 
   #update gloabal vars
   $nunknown+=$lnunknown;
